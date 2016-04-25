@@ -95,10 +95,10 @@ def parse_tokens(tokens):
 		
 	else:
 		""" Variable name """		
-		check(start.isalpha() || start == "_", "Variable names must be alphabetic.")
+		check(start.isalpha() or start == "_", "Variable names must be alphabetic.")
 		remaining = tokens[1:]
 		for token in tokens:
-			check(token.isalnum() || token == "_", "Variable characters must be alphanumeric.")
+			check(token.isalnum() or token == "_", "Variable characters must be alphanumeric.")
 		return (Name(start), remaining)
 		
 
