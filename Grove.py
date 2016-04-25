@@ -95,9 +95,11 @@ def parse_tokens(tokens):
 		
 	else:
 		""" Variable name """		
-		check(start.isalpha(), "Variable names must be alphabetic.")
-		# TODO: Make sure variables follow GROVE convention.
-		return (Name(start), tokens[1:])
+		check(start.isalpha() || start == "_", "Variable names must be alphabetic.")
+		remaining = tokens[1:]
+		for token in tokens:
+			check(token.isalnum() || token == "_", "Variable characters must be alphanumeric.")
+		return (Name(start), remaining)
 		
 
 if __name__ == "__main__":
