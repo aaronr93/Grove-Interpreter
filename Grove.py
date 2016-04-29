@@ -75,9 +75,27 @@ def parse_tokens(tokens):
 	elif start == "set":
 		(varname, tokens) = parse_tokens(tokens[1:])
 		expect(tokens[0], "=")
-		#check if new or expr
-		(child, tokens) = parse_tokens(tokens[1:])
-		return (Stmt(varname, child), tokens)
+		ret = 0
+		if tokens[1] == "new":
+			class_name = tokens[2]
+			if "." in class_name:
+				parts = class_name.split(".")
+				module = globals()[parts[0]]
+				cls = getattr(module, parts[1])
+				obj = cls()
+				ret = obj
+			else:
+				try: 
+					obj = globals()[class_name]()
+					ret = obj
+				except:
+					cls = getattr(globals()["__builtins__"], class_name)
+					obj = cls()
+					ret = obj
+			return(Stmt(varname,Obj(ret)), tokens[3:])
+		else:
+			(child, tokens) = parse_tokens(tokens[1:])
+			return (Stmt(varname, child), tokens)
 		
 	elif start == "quit":
 		sys.exit()
@@ -86,7 +104,7 @@ def parse_tokens(tokens):
 		sys.exit()
 	
 	elif start == "import":
-		pass
+		return(Stmt(Name("import"), Obj(tokens[1])), tokens[2:])
 		
 	else:
 		""" Variable name """		

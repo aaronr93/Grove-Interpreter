@@ -1,5 +1,6 @@
 # OOPL 5 - Grove Parser - Rosenberger Nafziger
 # Grove Lang
+import importlib
 
 var_table = {}
 
@@ -9,6 +10,13 @@ class Expr:
 
 
 class Num(Expr):
+	def __init__(self, value):
+		self.value = value
+	
+	def eval(self):
+		return self.value
+
+class Obj(Expr):
 	def __init__(self, value):
 		self.value = value
 	
@@ -40,7 +48,10 @@ class Stmt:
 			raise GroveError("Expected variable name but received " + str(type(self.name)))
 	
 	def eval(self):
-		var_table[self.name.getName()] = self.expr.eval()
+		if(self.name.getName() == "import"):
+			globals()[self.expr.eval()] = importlib.import_module(self.expr.eval())
+		else:
+			var_table[self.name.getName()] = self.expr.eval()
 
 
 class Addition(Expr):
