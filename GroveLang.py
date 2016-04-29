@@ -40,8 +40,7 @@ class Stmt:
 			raise GroveError("Expected variable name but received " + str(type(self.name)))
 	
 	def eval(self):
-		if self.name in var_table:
-			var_table[self.name.getName()] = self.expr.eval()
+		var_table[self.name.getName()] = self.expr.eval()
 
 
 class Addition(Expr):

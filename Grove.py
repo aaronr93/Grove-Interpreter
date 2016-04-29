@@ -63,10 +63,7 @@ def parse_tokens(tokens):
 	
 	if is_int(start):
 		return (Num(int(start)), tokens[1:])
-		
-	elif is_string(start):
-		return (StringLiteral(str(start)), tokens[1:])
-		
+
 	elif start == "+":
 		expect(tokens[1], "(")
 		(child1, tokens) = parse_tokens(tokens[2:])
@@ -95,7 +92,7 @@ def parse_tokens(tokens):
 		
 	else:
 		""" Variable name """		
-		check(start[0].replace("_", "a").isalpha() and (start[1:].replace("_", "a").isalnum() or start[1:] == ""), "Variable names must be alphanumeric and begin with a letter.")
+		check(start[0].replace("_", "a").isalpha() and (start[1:].replace("_", "a").isalnum() or start[1:] == ""), "Variable names must be alphanumeric and begin with an alphabetic character.")
 		remaining = tokens[1:]
 		return (Name(start), remaining)
 		
@@ -104,7 +101,6 @@ if __name__ == "__main__":
 
 	while True:
 		userInput = input("Grove>> ") #.strip()
-		
 		if len(userInput) == 0:
 			break
 		
@@ -116,6 +112,6 @@ if __name__ == "__main__":
 		except ValueError as error:
 			print(error)
 		except GroveError as error:
-			print("GROVE: " + str(error))
+			print(str(error))
 
 			
