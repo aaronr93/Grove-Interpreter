@@ -1,5 +1,6 @@
 # OOPL 5 - Grove Parser - Rosenberger Nafziger
 # Grove Parser Main
+import sys
 
 exec(open("GroveLang.py").read())
 exec(open("GroveError.py").read())
@@ -32,15 +33,6 @@ def is_int(s):
 		return False
 
 
-def is_string(s):
-	""" Takes a string and returns True if it cannot be converted to an integer """
-	""" Maybe think of a better way to do this? """
-	try:
-		int(s)
-		return False
-	except ValueError:
-		return True
-
 
 def parse(s):
 	""" Return an object representing a parsed command
@@ -63,6 +55,11 @@ def parse_tokens(tokens):
 	
 	if is_int(start):
 		return (Num(int(start)), tokens[1:])
+	elif start[0] == "\"":
+		#StringLiteral
+		expect(start[-1], "\"")
+		check(" " not in start[1:-1] and "\"" not in start[1:-1], "StringLiterals cannot contain whitespace or quotes")
+		return (StringLiteral(start[1:-1]), tokens[1:])
 
 	elif start == "+":
 		expect(tokens[1], "(")
@@ -78,14 +75,15 @@ def parse_tokens(tokens):
 	elif start == "set":
 		(varname, tokens) = parse_tokens(tokens[1:])
 		expect(tokens[0], "=")
+		#check if new or expr
 		(child, tokens) = parse_tokens(tokens[1:])
 		return (Stmt(varname, child), tokens)
 		
 	elif start == "quit":
-		pass
+		sys.exit()
 		
 	elif start == "exit":
-		pass
+		sys.exit()
 	
 	elif start == "import":
 		pass

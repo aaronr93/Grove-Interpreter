@@ -64,6 +64,7 @@ class StringLiteral(Expr):
 	def __init__(self, str):
 		self.str = str
 		# TODO: Add checking for valid Grove strings
+		#I don't think we want to check in here... Name and Num don't have checks
 		
 	def eval(self):
-		pass
+		return self.str
