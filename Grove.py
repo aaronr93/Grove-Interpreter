@@ -8,7 +8,7 @@ exec(open("GroveError.py").read())
 def check(condition, message = "Unexpected end of expression"):
 	""" Checks if condition is true, raising a ValueError otherwise """
 	if not condition:
-		raise ValueError("GROVE: " + message)
+		raise GroveError("GROVE: " + message)
 		
 		
 def expect(token, expected):
@@ -65,7 +65,7 @@ def parse_tokens(tokens):
 		return (Num(int(start)), tokens[1:])
 		
 	elif is_string(start):
-		return (StringLiteral(string(start)), tokens[1:])
+		return (StringLiteral(str(start)), tokens[1:])
 		
 	elif start == "+":
 		expect(tokens[1], "(")
@@ -95,10 +95,8 @@ def parse_tokens(tokens):
 		
 	else:
 		""" Variable name """		
-		check(start.isalpha() or start == "_", "Variable names must be alphabetic.")
+		check(start[0].replace("_", "a").isalpha() and (start[1:].replace("_", "a").isalnum() or start[1:] == ""), "Variable names must be alphanumeric and begin with a letter.")
 		remaining = tokens[1:]
-		for token in tokens:
-			check(token.isalnum() or token == "_", "Variable characters must be alphanumeric.")
 		return (Name(start), remaining)
 		
 
@@ -118,6 +116,6 @@ if __name__ == "__main__":
 		except ValueError as error:
 			print(error)
 		except GroveError as error:
-			print("GROVE: " + error)
+			print("GROVE: " + str(error))
 
 			
