@@ -65,7 +65,7 @@ def parse_tokens(tokens):
 		return (Num(int(start)), tokens[1:])
 		
 	elif is_string(start):
-		return (StringLiteral(string(start)), tokens[1:])
+		return (StringLiteral(str(start)), tokens[1:])
 		
 	elif start == "+":
 		expect(tokens[1], "(")
@@ -83,6 +83,9 @@ def parse_tokens(tokens):
 		expect(tokens[0], "=")
 		(child, tokens) = parse_tokens(tokens[1:])
 		return (Stmt(varname, child), tokens)
+	
+	elif start == "new":
+		pass
 		
 	elif start == "quit":
 		pass
@@ -91,7 +94,9 @@ def parse_tokens(tokens):
 		pass
 	
 	elif start == "import":
-		pass
+		(module, tokens) = parse_tokens(tokens[1:])
+		if tokens[0] == ".":
+			
 		
 	else:
 		""" Variable name """		

@@ -64,7 +64,15 @@ class Addition(Expr):
 class StringLiteral(Expr):
 	def __init__(self, str):
 		self.str = str
-		# TODO: Add checking for valid Grove strings
 		
 	def eval(self):
-		pass
+		if containsAny(self.str, string.whitespace):
+			raise GroveError("String literal " + self.str + " is not valid. Strings should not contain whitespace.")
+		if "\"" in self.str:
+			raise GroveError("String literal " + self.str + " is not valid. Strings should not contain double quotes.")
+		else:
+			return self.str
+
+def containsAny(str, set):
+    """Check whether 'str' contains ANY of the chars in 'set'"""
+    return 1 in [c in str for c in set]
