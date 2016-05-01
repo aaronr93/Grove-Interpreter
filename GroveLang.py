@@ -1,5 +1,6 @@
 # OOPL 5 - Grove Parser - Rosenberger Nafziger
 # Grove Lang
+import importlib
 
 var_table = {}
 
@@ -9,6 +10,13 @@ class Expr:
 
 
 class Num(Expr):
+	def __init__(self, value):
+		self.value = value
+	
+	def eval(self):
+		return self.value
+
+class Obj(Expr):
 	def __init__(self, value):
 		self.value = value
 	
@@ -40,8 +48,11 @@ class Stmt:
 			raise GroveError("Expected variable name but received " + str(type(self.name)))
 	
 	def eval(self):
-		if self.name in var_table:
-			var_table[self.name.getName()] = self.expr.eval()
+		if(self.name.getName() == "import"):
+			globals()[self.expr.eval()] = importlib.import_module(self.expr.eval())
+		else:
+			if self.name in var_table:
+				var_table[self.name.getName()] = self.expr.eval()
 
 
 class Addition(Expr):
@@ -64,6 +75,7 @@ class Addition(Expr):
 class StringLiteral(Expr):
 	def __init__(self, str):
 		self.str = str
+<<<<<<< HEAD
 		
 	def eval(self):
 		if containsAny(self.str, string.whitespace):
@@ -76,3 +88,10 @@ class StringLiteral(Expr):
 def containsAny(str, set):
     """Check whether 'str' contains ANY of the chars in 'set'"""
     return 1 in [c in str for c in set]
+=======
+		# TODO: Add checking for valid Grove strings
+		#I don't think we want to check in here... Name and Num don't have checks
+		
+	def eval(self):
+		return self.str
+>>>>>>> 62cf4bf504cae00800c8a64fe66f113ecb7e4269

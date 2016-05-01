@@ -1,5 +1,6 @@
 # OOPL 5 - Grove Parser - Rosenberger Nafziger
 # Grove Parser Main
+import sys
 
 exec(open("GroveLang.py").read())
 exec(open("GroveError.py").read())
@@ -8,7 +9,7 @@ exec(open("GroveError.py").read())
 def check(condition, message = "Unexpected end of expression"):
 	""" Checks if condition is true, raising a ValueError otherwise """
 	if not condition:
-		raise ValueError("GROVE: " + message)
+		raise GroveError("" + message)
 		
 		
 def expect(token, expected):
@@ -31,15 +32,6 @@ def is_int(s):
 	except ValueError:
 		return False
 
-
-def is_string(s):
-	""" Takes a string and returns True if it cannot be converted to an integer """
-	""" Maybe think of a better way to do this? """
-	try:
-		int(s)
-		return False
-	except ValueError:
-		return True
 
 
 def parse(s):
@@ -64,9 +56,28 @@ def parse_tokens(tokens):
 	if is_int(start):
 		return (Num(int(start)), tokens[1:])
 		
-	elif is_string(start):
-		return (StringLiteral(str(start)), tokens[1:])
-		
+	elif start[0] == "\"":
+		#StringLiteral
+		expect(start[-1], "\"")
+		check(" " not in start[1:-1] and "\"" not in start[1:-1], "StringLiterals cannot contain whitespace or quotes")
+		return (StringLiteral(start[1:-1]), tokens[1:])
+
+	elif start == "call":
+		expect(tokens[1], "(")
+		(name, tokens) = parse_tokens(tokens[2:])
+		check(len(tokens) > 1)
+		#make sure the object exists
+		try:
+			test = var_table[name.getName()]
+		except:
+			raise GroveError("Undefined variable " + name.getName())
+		(methodName, tokens) = parse_tokens(tokens)
+		#check(len(tokens) > 1)
+		try:
+			callable(getattr(var_table[name.getName()], methodName.getName()))
+		except:
+		 	raise GroveError("Object " + name.getName() + " does not have method " + methodName.getName())
+
 	elif start == "+":
 		expect(tokens[1], "(")
 		(child1, tokens) = parse_tokens(tokens[2:])
@@ -81,29 +92,41 @@ def parse_tokens(tokens):
 	elif start == "set":
 		(varname, tokens) = parse_tokens(tokens[1:])
 		expect(tokens[0], "=")
-		(child, tokens) = parse_tokens(tokens[1:])
-		return (Stmt(varname, child), tokens)
-	
-	elif start == "new":
-		pass
+		ret = 0
+		if tokens[1] == "new":
+			class_name = tokens[2]
+			if "." in class_name:
+				parts = class_name.split(".")
+				module = globals()[parts[0]]
+				cls = getattr(module, parts[1])
+				obj = cls()
+				ret = obj
+			else:
+				try: 
+					obj = globals()[class_name]()
+					ret = obj
+				except:
+					cls = getattr(globals()["__builtins__"], class_name)
+					obj = cls()
+					ret = obj
+			return(Stmt(varname,Obj(ret)), tokens[3:])
+		else:
+			(child, tokens) = parse_tokens(tokens[1:])
+			return (Stmt(varname, child), tokens)
 		
 	elif start == "quit":
-		pass
+		sys.exit()
 		
 	elif start == "exit":
-		pass
+		sys.exit()
 	
 	elif start == "import":
-		(module, tokens) = parse_tokens(tokens[1:])
-		if tokens[0] == ".":
-			
+		return(Stmt(Name("import"), Obj(tokens[1])), tokens[2:])
 		
 	else:
 		""" Variable name """		
-		check(start.isalpha() or start == "_", "Variable names must be alphabetic.")
+		check(start[0].replace("_", "a").isalpha() and (start[1:].replace("_", "a").isalnum() or start[1:] == ""), "Variable names must be alphanumeric and begin with an alphabetic character.")
 		remaining = tokens[1:]
-		for token in tokens:
-			check(token.isalnum() or token == "_", "Variable characters must be alphanumeric.")
 		return (Name(start), remaining)
 		
 
@@ -111,7 +134,6 @@ if __name__ == "__main__":
 
 	while True:
 		userInput = input("Grove>> ") #.strip()
-		
 		if len(userInput) == 0:
 			break
 		
@@ -123,6 +145,6 @@ if __name__ == "__main__":
 		except ValueError as error:
 			print(error)
 		except GroveError as error:
-			print("GROVE: " + error)
+			print("GROVE: " + str(error))
 
 			
