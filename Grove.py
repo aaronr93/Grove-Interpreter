@@ -9,7 +9,7 @@ exec(open("GroveError.py").read())
 def check(condition, message = "Unexpected end of expression"):
 	""" Checks if condition is true, raising a ValueError otherwise """
 	if not condition:
-		raise GroveError("GROVE: " + message)
+		raise GroveError("" + message)
 		
 		
 def expect(token, expected):
@@ -60,6 +60,22 @@ def parse_tokens(tokens):
 		expect(start[-1], "\"")
 		check(" " not in start[1:-1] and "\"" not in start[1:-1], "StringLiterals cannot contain whitespace or quotes")
 		return (StringLiteral(start[1:-1]), tokens[1:])
+
+	elif start == "call":
+		expect(tokens[1], "(")
+		(name, tokens) = parse_tokens(tokens[2:])
+		check(len(tokens) > 1)
+		#make sure the object exists
+		try:
+			test = var_table[name.getName()]
+		except:
+			raise GroveError("Undefined variable " + name.getName())
+		(methodName, tokens) = parse_tokens(tokens)
+		#check(len(tokens) > 1)
+		try:
+			callable(getattr(var_table[name.getName()], methodName.getName()))
+		except:
+		 	raise GroveError("Object " + name.getName() + " does not have method " + methodName.getName())
 
 	elif start == "+":
 		expect(tokens[1], "(")
@@ -128,6 +144,6 @@ if __name__ == "__main__":
 		except ValueError as error:
 			print(error)
 		except GroveError as error:
-			print(str(error))
+			print("GROVE: " + str(error))
 
 			
