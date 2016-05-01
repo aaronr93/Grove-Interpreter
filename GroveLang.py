@@ -48,7 +48,7 @@ class Stmt:
 			raise GroveError("Expected variable name but received " + str(type(self.name)))
 	
 	def eval(self):
-		if(self.name.getName() == "import"):
+		if self.name.getName() == "import":
 			globals()[self.expr.eval()] = importlib.import_module(self.expr.eval())
 		else:
 			if self.name in var_table:
@@ -75,23 +75,10 @@ class Addition(Expr):
 class StringLiteral(Expr):
 	def __init__(self, str):
 		self.str = str
-<<<<<<< HEAD
 		
 	def eval(self):
-		if containsAny(self.str, string.whitespace):
-			raise GroveError("String literal " + self.str + " is not valid. Strings should not contain whitespace.")
-		if "\"" in self.str:
-			raise GroveError("String literal " + self.str + " is not valid. Strings should not contain double quotes.")
-		else:
-			return self.str
+		return self.str
 
 def containsAny(str, set):
     """Check whether 'str' contains ANY of the chars in 'set'"""
     return 1 in [c in str for c in set]
-=======
-		# TODO: Add checking for valid Grove strings
-		#I don't think we want to check in here... Name and Num don't have checks
-		
-	def eval(self):
-		return self.str
->>>>>>> 62cf4bf504cae00800c8a64fe66f113ecb7e4269
