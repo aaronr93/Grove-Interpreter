@@ -49,7 +49,10 @@ class Stmt:
 	
 	def eval(self):
 		if self.name.getName() == "import":
-			globals()[self.expr.eval()] = importlib.import_module(self.expr.eval())
+			try:
+				globals()[self.expr.eval()] = importlib.import_module(self.expr.eval())
+			except:
+				raise GroveError("Couldn't find module " + self.expr.eval())
 		elif self.name.getName() == "call":
 			pass
 		else:

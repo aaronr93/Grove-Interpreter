@@ -62,6 +62,7 @@ def parse_tokens(tokens):
 		return (StringLiteral(start[1:-1]), tokens[1:])
 
 	elif start == "call":
+		check(len(tokens) > 1)
 		expect(tokens[1], "(")
 		(name, tokens) = parse_tokens(tokens[2:])
 		check(len(tokens) > 1)
@@ -100,24 +101,31 @@ def parse_tokens(tokens):
 			
 	elif start == "set":
 		(varname, tokens) = parse_tokens(tokens[1:])
+		check(len(tokens) > 0)
 		expect(tokens[0], "=")
 		ret = 0
 		if tokens[1] == "new":
 			class_name = tokens[2]
 			if "." in class_name:
 				parts = class_name.split(".")
-				module = globals()[parts[0]]
-				cls = getattr(module, parts[1])
-				obj = cls()
-				ret = obj
+				try:
+					module = globals()[parts[0]]
+					cls = getattr(module, parts[1])
+					obj = cls()
+					ret = obj
+				except:
+					raise GroveError("Class " + class_name + " cannot be found")
 			else:
 				try: 
 					obj = globals()[class_name]()
 					ret = obj
 				except:
-					cls = getattr(globals()["__builtins__"], class_name)
-					obj = cls()
-					ret = obj
+					try:
+						cls = getattr(globals()["__builtins__"], class_name)
+						obj = cls()
+						ret = obj
+					except:
+						raise GroveError("Class " + class_name + " cannot be found")
 			return(Stmt(varname,Obj(ret)), tokens[3:])
 		else:
 			(child, tokens) = parse_tokens(tokens[1:])
@@ -130,6 +138,7 @@ def parse_tokens(tokens):
 		sys.exit()
 	
 	elif start == "import":
+		check(len(tokens) > 1)
 		return(Stmt(Name("import"), Obj(tokens[1])), tokens[2:])
 		
 	else:
