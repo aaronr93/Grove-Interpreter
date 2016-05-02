@@ -33,7 +33,6 @@ def is_int(s):
 		return False
 
 
-
 def parse(s):
 	""" Return an object representing a parsed command
 		Throws ValueError for improper syntax """
@@ -77,6 +76,32 @@ def parse_tokens(tokens):
 			callable(getattr(var_table[name.getName()], methodName.getName()))
 		except:
 		 	raise GroveError("Object " + name.getName() + " does not have method " + methodName.getName())
+		remaining = tokens[2:]
+		args = []
+		while len(remaining) > 1 and remaining[1] != ")":
+			(argument, tokens) = parse_tokens(remaining)
+			if argument[len(argument)-1:] == "*":
+				argument = argument[:len(argument)-1]		# Remove asterisk from end
+				try:
+					is_expr(argument)
+					argslist = eval(argument)	# Try to actually get the list?
+					for arg in argslist:
+						try:
+							is_expr(arg)
+							args.append(arg)
+						except:
+							raise GroveError
+				except:
+					raise GroveError
+				break
+			else:
+				try:
+					is_expr(argument)
+					args.append(argument)
+				except:
+					raise GroveError
+		expect(remaining, ")")
+		
 
 	elif start == "+":
 		expect(tokens[1], "(")
@@ -146,5 +171,3 @@ if __name__ == "__main__":
 			print(error)
 		except GroveError as error:
 			print("GROVE: " + str(error))
-
-			
