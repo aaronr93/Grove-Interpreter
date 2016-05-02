@@ -76,31 +76,15 @@ def parse_tokens(tokens):
 			callable(getattr(var_table[name.getName()], methodName.getName()))
 		except:
 		 	raise GroveError("Object " + name.getName() + " does not have method " + methodName.getName())
-		remaining = tokens[2:]
+		remaining = tokens
 		args = []
-		while len(remaining) > 1 and remaining[1] != ")":
-			(argument, tokens) = parse_tokens(remaining)
-			if argument[len(argument)-1:] == "*":
-				argument = argument[:len(argument)-1]		# Remove asterisk from end
-				try:
-					is_expr(argument)
-					argslist = eval(argument)	# Try to actually get the list?
-					for arg in argslist:
-						try:
-							is_expr(arg)
-							args.append(arg)
-						except:
-							raise GroveError
-				except:
-					raise GroveError
-				break
-			else:
-				try:
-					is_expr(argument)
-					args.append(argument)
-				except:
-					raise GroveError
-		expect(remaining, ")")
+		while len(remaining) > 0 and remaining[0] != ")":
+			(argument, remaining) = parse_tokens(remaining)
+			check(callable(getattr(argument,"eval")), "Non expression argument " + str(argument))
+			args.append(argument.eval())
+		result = getattr(var_table[name.getName()], methodName.getName())(*args)
+		expect(remaining[0], ")")
+		return (Stmt(Name("call"), Expr(None)),remaining[1:])
 		
 
 	elif start == "+":

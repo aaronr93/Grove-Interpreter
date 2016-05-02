@@ -50,9 +50,10 @@ class Stmt:
 	def eval(self):
 		if self.name.getName() == "import":
 			globals()[self.expr.eval()] = importlib.import_module(self.expr.eval())
+		elif self.name.getName() == "call":
+			pass
 		else:
-			if self.name in var_table:
-				var_table[self.name.getName()] = self.expr.eval()
+			var_table[self.name.getName()] = self.expr.eval()
 
 
 class Addition(Expr):
