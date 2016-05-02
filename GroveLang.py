@@ -69,7 +69,7 @@ class Addition(Expr):
 			raise GroveError("Expected expression but received " + str(type(self.b)))
 			
 		# Checks that the numbers being added are the same type
-		if type(a) != type(b):
+		if type(a.eval()) != type(b.eval()):
 			raise GroveError("Addition expected equal types but received types " + str(type(self.a)) + " + " + str(type(self.b)))
 	
 	def eval(self):

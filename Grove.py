@@ -1,5 +1,11 @@
 # OOPL 5 - Grove Parser - Rosenberger Nafziger
 # Grove Parser Main
+# Answer to Question: This Grove interpreter uses dynamic typing. 
+#When declaring objects, we don't declare it with a type. 
+#We simply write "set x = 5" and it parses the string to determine 
+#that x is a Num variable with the value 5.
+#It doesn't find errors until run-time, since we didn't write a compiler.
+
 import sys
 
 exec(open("GroveLang.py").read())
@@ -85,7 +91,7 @@ def parse_tokens(tokens):
 			args.append(argument.eval())
 		result = getattr(var_table[name.getName()], methodName.getName())(*args)
 		expect(remaining[0], ")")
-		return (Stmt(Name("call"), Expr(None)),remaining[1:])
+		return (Obj(result),remaining[1:])
 		
 
 	elif start == "+":
